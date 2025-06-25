@@ -27,14 +27,16 @@ services:
       - JwtSettings__ExpirationTimeInMinutes=${JWT_EXPIRATION_TIME_IN_MINUTES}
       - JwtSettings__SecurityAlgorithm=${JWT_SECURITY_ALGORITHM}
       - MessageBrokerSettings__Host=${RABBITMQ_HOST}
-      - MessageBrokerSettings__User=${RABBITMQ_USER}
+      - MessageBrokerSettings__Port=${RABBITMQ_PORT}
+      - MessageBrokerSettings__Username=${RABBITMQ_USER}
       - MessageBrokerSettings__Password=${RABBITMQ_PASSWORD}
-      - MessageBrokerSettings__EnableRetryPolicy=${RABBITMQ_ENABLE_RETRY_POLICY}
-      - MessageBrokerSettings__RetryCount=${RABBITMQ_RETRY_COUNT}
-      - MessageBrokerSettings__RetryIntervalMilliseconds=${RABBITMQ_RETRY_INTERVAL_MILLISECONDS}
+      - EmailLinkGeneratorSettings__ClientAppUrl=${EMAIL_CLIENT_URL}
+      - EmailLinkGeneratorSettings__EmailConfirmationPath=${EMAIL_EMAIL_CONFIRMATION_PATH}
+      - EmailLinkGeneratorSettings__AdminEmailConfirmationPath=${EMAIL_ADMIN_EMAIL_CONFIRMATION_PATH}
     build:
       args:
         BUILD_CONFIGURATION: ${DOTNET_BUILD_CONFIGURATION}
+    entrypoint: ["./scripts/entrypoints/bazario-identity-webapi-entrypoint.sh"]
     volumes:
       - ../Bazario.Identity/src/https:/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
@@ -50,19 +52,44 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Password=p@ssw0rd!
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
 
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__ExpirationTimeInMinutes=${JWT_EXPIRATION_TIME_IN_MINUTES}
+      - JwtSettings__SecurityAlgorithm=${JWT_SECURITY_ALGORITHM}
       - DbSettings__ConnectionString=${USERS_DB_CONNECTION_STRING}
       - MessageBrokerSettings__Host=${RABBITMQ_HOST}
-      - MessageBrokerSettings__User=${RABBITMQ_USER}
+      - MessageBrokerSettings__Port=${RABBITMQ_PORT}
+      - MessageBrokerSettings__Username=${RABBITMQ_USER}
       - MessageBrokerSettings__Password=${RABBITMQ_PASSWORD}
-      - MessageBrokerSettings__EnableRetryPolicy=${RABBITMQ_ENABLE_RETRY_POLICY}
-      - MessageBrokerSettings__RetryCount=${RABBITMQ_RETRY_COUNT}
-      - MessageBrokerSettings__RetryIntervalMilliseconds=${RABBITMQ_RETRY_INTERVAL_MILLISECONDS}
     build:
       args:
         BUILD_CONFIGURATION: ${DOTNET_BUILD_CONFIGURATION}
+    entrypoint: ["./scripts/entrypoints/bazario-users-webapi-entrypoint.sh"]
     volumes:
       - ../Bazario.Users/src/https:/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  bazario-notification:
+    environment:
+      - MessageBrokerSettings__Host=${RABBITMQ_HOST}
+      - MessageBrokerSettings__PORT=${RABBITMQ_PORT}
+      - MessageBrokerSettings__Username=${RABBITMQ_USER}
+      - MessageBrokerSettings__Password=${RABBITMQ_PASSWORD}
+      - SmtpClientSettings__Username=${SMTP_CLIENT_USERNAME}
+      - SmtpClientSettings__Password=${SMTP_CLIENT_PASSWORD}
+      - SmtpClientSettings__Host=${SMTP_CLIENT_HOST}
+      - SmtpClientSettings__Port=${SMTP_CLIENT_PORT}
+      - SmtpClientSettings__EnableSsl=${SMTP_CLIENT_ENABLE_SSL}
+    build:
+      args:
+        BUILD_CONFIGURATION: ${DOTNET_BUILD_CONFIGURATION}
+    entrypoint: ["./scripts/entrypoints/bazario-notification-entrypoint.sh"]
+
+  bazario-moderation:
+    environment:
+      AMQP_URL: ${RABBITMQ_AMQP_URL}
+    entrypoint: ["./scripts/entrypoints/bazario-moderation-entrypoint.sh"]  

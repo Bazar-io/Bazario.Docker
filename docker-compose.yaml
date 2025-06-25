@@ -22,7 +22,6 @@ services:
     ports:
       - "6379:6379"
 
-
   bazario-web:
     image: bazario.web
     container_name: bazario.web
@@ -41,9 +40,9 @@ services:
     ports:
       - "5001:5001"
       - "5002:5002"
-    command: /wait-for-it.sh bazario.identity.postgres:5432 -- dotnet Bazario.Identity.WebAPI.dll
     depends_on:
       - bazario-identity-postgres
+      - bazario-queue
 
   bazario-identity-postgres:
     image: postgres:latest
@@ -67,9 +66,9 @@ services:
     ports:
       - "5003:5003"
       - "5004:5004"
-    command: /wait-for-it.sh bazario.users.postgres:5432 -- dotnet Bazario.Users.WebAPI.dll
     depends_on:
       - bazario-users-postgres
+      - bazario-queue
 
   bazario-users-postgres:
     image: postgres:latest
@@ -84,7 +83,28 @@ services:
       - ./.containers/postgres/users/data/:/var/lib/postgresql/data
       - ./.containers/postgres/users/log/:/var/log/postgresql
 
-  bazario.queue:
+  bazario-notification:
+    image: bazario.notification:${DOTNET_BUILD_CONFIGURATION:-release}
+    container_name: bazario.notification
+    build:
+      context: ..
+      dockerfile: ./Bazario.Notification/src/Dockerfile
+    depends_on:
+      - bazario-queue
+
+  bazario-moderation:
+    image: bazario.moderation
+    build:
+      context: ..
+      dockerfile: Bazario.Moderation/Dockerfile
+    container_name: bazario.moderation
+    ports:
+      - "5009:5009"
+      - "5010:5010"
+    depends_on:
+      - bazario-queue
+
+  bazario-queue:
     image: rabbitmq:management
     container_name: bazario.queue
     hostname: bazario-queue
@@ -97,3 +117,12 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+
+  bazario-mailhog:
+    image: mailhog/mailhog
+    container_name: bazario.mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    volumes:
+      - ./.containers/mailhog/data/:/data/maildir
