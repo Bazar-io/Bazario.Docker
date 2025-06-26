@@ -5,6 +5,7 @@ services:
       dockerfile: ./Bazario.ApiGateway/Dockerfile
     ports:
       - "443:443"
+      - "80:80"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       LOGGING_LEVEL_ROOT: DEBUG
