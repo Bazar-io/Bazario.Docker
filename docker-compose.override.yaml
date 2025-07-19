@@ -46,6 +46,7 @@ services:
       - EmailLinkGeneratorSettings__ClientAppUrl=${EMAIL_CLIENT_URL}
       - EmailLinkGeneratorSettings__EmailConfirmationPath=${EMAIL_EMAIL_CONFIRMATION_PATH}
       - EmailLinkGeneratorSettings__AdminEmailConfirmationPath=${EMAIL_ADMIN_EMAIL_CONFIRMATION_PATH}
+      - Serilog__WriteTo__1__Args__serverUrl=${SEQ_SERVER_URL}
     build:
       args:
         BUILD_CONFIGURATION: ${DOTNET_BUILD_CONFIGURATION}
@@ -75,6 +76,7 @@ services:
       - MessageBrokerSettings__Port=${RABBITMQ_PORT}
       - MessageBrokerSettings__Username=${RABBITMQ_USER}
       - MessageBrokerSettings__Password=${RABBITMQ_PASSWORD}
+      - Serilog__WriteTo__1__Args__serverUrl=${SEQ_SERVER_URL}
     build:
       args:
         BUILD_CONFIGURATION: ${DOTNET_BUILD_CONFIGURATION}
@@ -106,3 +108,8 @@ services:
     environment:
       AMQP_URL: ${RABBITMQ_AMQP_URL}
     entrypoint: ["./scripts/entrypoints/bazario-moderation-entrypoint.sh"]
+
+  bazario-seq:
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=True
