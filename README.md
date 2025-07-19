@@ -18,7 +18,7 @@ Before you begin, ensure you have the following installed:
 To run this project, it is required to install:
 
 - [Bazario.Web](https://github.com/Bazar-io/Bazario.Web) - Angular project used as the client side web application.
-- [Bazario.ApiGateway](https://github.com/Bazar-io/Bazario.ApiGateway) - SpringBoot API Gateway project that acts as single entry point to the system, routing requests to backend services.
+- [Bazario.ApiGateway](https://github.com/Bazar-io/Bazario.ApiGateway) - ASP.NET Core API with YARP reverse proxy project that acts as single entry point to the system, routing requests to backend services.
 - [Bazario.AspNetCore.Shared](https://github.com/Bazar-io/Bazario.AspNetCore.Shared) - .NET common class library that is used accross .NET microservice projects.
 - [Bazario.Identity](https://github.com/Bazar-io/Bazario.Identity) - ASP.NET Core WebAPI that is responsible for handling user authentication and authorization.
 - [Bazario.Users](https://github.com/Bazar-io/Bazario.Users) - ASP.NET Core WebAPI that is responsible for handling users and admins management.
@@ -84,8 +84,8 @@ Before launching the application, ensure that Docker is launched and the followi
 - `5432` - used by the Bazario.Identity database
 - `5433` - used by the Bazario.Users database
 - `4200` - used by the client-side application
+- `5341` and `8081` - used by Seq logging server
 - `15672` and `5672` - used by RabbitMQ message broker
-- `6379` - used by Redis
 
 To run project, navigate to `Bazario/Bazario.Docker` and execute the following command:
 
@@ -116,9 +116,13 @@ After running the project, you can access:
   - [http://localhost:5003/swagger](http://localhost:5003/swagger)
   - [https://localhost:5004/swagger](https://localhost:5004/swagger)
 
+## Logging
+
+Application logs are stored and managed by [Seq](https://datalust.co/) server and available at [http://localhost:8081](http://localhost:8081).
+
 ## Debuging
 
-You can also use debug version of dotnet projects such as [Bazario.Identity](https://github.com/Bazar-io/Bazario.Identity), [Bazario.Users](https://github.com/Bazar-io/Bazario.Users) or [Bazario.Notification](https://github.com/Bazar-io/Bazario.Notification).
+You can also use debug version of dotnet projects such as [Bazario.Identity](https://github.com/Bazar-io/Bazario.Identity), [Bazario.Users](https://github.com/Bazar-io/Bazario.Users), [Bazario.ApiGateway](https://github.com/Bazar-io/Bazario.ApiGateway) or [Bazario.Notification](https://github.com/Bazar-io/Bazario.Notification).
 
 To build dotnet projects with 'Debug' configuration you need to set environment variable `DOTNET_BUILD_CONFIGURATION` to `Debug`. Use the following commands before launching `docker compose up` command or set it in the `.env` file:
 

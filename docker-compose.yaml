@@ -110,6 +110,17 @@ services:
     networks:
       - bazario-network
 
+  bazario-seq:
+    image: datalust/seq:latest
+    container_name: bazario.seq
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    volumes:
+      - ./.containers/seq/data/:/data
+    networks:
+      - bazario-network
+
   bazario-queue:
     image: rabbitmq:management
     container_name: bazario.queue
